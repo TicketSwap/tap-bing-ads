@@ -869,7 +869,7 @@ def get_report_interval(state_key):
 
     start_date = min(start_date, conversion_min_date) # minimum of start_date or conversion_min_date
 
-    end_date = min(config_end_date, arrow.get().floor('day')) # minimum of end_date or current date
+    end_date = min(config_end_date, arrow.get().floor("day").shift(days=-1)) # minimum of end_date or last date completed
 
     return start_date, end_date
 
