@@ -316,7 +316,7 @@ def wsdl_type_to_schema(inherited_types, wsdl_type):
 
     return {
         'type': ['null', 'object'],
-        'additionalProperties': False,
+        'additionalProperties': True,
         'properties': properties
     }
 
@@ -370,7 +370,7 @@ def get_type_map(client):
 
     # Temporary change to add a new wsdl property to the type map so it can be resolved below and filled in with correct JSON schema
     if not type_map.get('KeyValueOfstringbase64Binary'):
-        type_map['KeyValueOfstringbase64Binary'] = {'additionalProperties': False, 'type': ['null', 'object'], 'properties': {'key': {'type': ['null', 'string']}, 'value': {'type': ['null', 'string']}}}
+        type_map['KeyValueOfstringbase64Binary'] = {'additionalProperties': True, 'type': ['null', 'object'], 'properties': {'key': {'type': ['null', 'string']}, 'value': {'type': ['null', 'string']}}}
     normalize_abstract_types(inherited_types, type_map)
 
     for _type, schema in type_map.items():
@@ -489,7 +489,7 @@ def get_report_schema(client, report_name):
 
     return {
         'properties': properties,
-        'additionalProperties': False,
+        'additionalProperties': True,
         'type': 'object'
     }
 
