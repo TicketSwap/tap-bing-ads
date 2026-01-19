@@ -277,20 +277,38 @@ def get_array_type(array_type):
     return array_obj
 
 def get_complex_type_elements(inherited_types, wsdl_type):
-    ## inherited type
-    if isinstance(wsdl_type.rawchildren[0].rawchildren[0], suds.xsd.sxbasic.Extension): # pylint: disable=no-else-return
-        abstract_base = wsdl_type.rawchildren[0].rawchildren[0].ref[0]
+    """
+    Return the list of elements for a complexType.
+
+    Newer bingads/suds versions can surface complexTypes whose rawchildren nesting
+    differs (or is empty). This function must be defensive.
+    """
+    rawchildren = getattr(wsdl_type, 'rawchildren', None) or []
+    if not rawchildren:
+        return []
+
+    first = rawchildren[0]
+    first_children = getattr(first, 'rawchildren', None) or []
+    if not first_children:
+        return []
+
+    # Some WSDL types are extensions of an abstract base type
+    first_child0 = first_children[0]
+    if isinstance(first_child0, suds.xsd.sxbasic.Extension):
+        abstract_base = first_child0.ref[0]
         if abstract_base not in inherited_types:
             inherited_types[abstract_base] = set()
         inherited_types[abstract_base].add(wsdl_type.name)
 
         elements = []
-        for element_group in wsdl_type.rawchildren[0].rawchildren[0].rawchildren:
+        for element_group in getattr(first_child0, 'rawchildren', []) or []:
             for element in element_group:
-                elements.append(element[0])
+                # In this codebase, element tuples store the node at [0]
+                elements.append(element[0] if isinstance(element, tuple) else element)
         return elements
-    else:
-        return wsdl_type.rawchildren[0].rawchildren
+
+    # Non-extension complex type: return its direct children
+    return first_children
 
 def wsdl_type_to_schema(inherited_types, wsdl_type):
     #Prepare schema from wsdl file
